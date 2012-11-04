@@ -1,0 +1,110 @@
+﻿#outer-container
+{
+    border-bottom: solid 1px #888;
+    padding-right:4px;
+}
+#container
+{
+    margin-left: 60px;
+    margin-right: -60px;
+}
+.item
+{
+    border-radius: 10px;
+    border: solid 5px #d6f;
+    float: left;
+    height: 70px;
+    margin: 0 0 10px 0;
+    padding: 10px 5px 2px 15px;
+}
+
+
+.item .description
+{
+    font-size: 0.65em;
+    margin: 3px 0 3px 0;
+}
+#header
+{
+    margin: 25px 0 10px 0;
+    float: left;
+}
+#header img
+{
+    margin-left: 60px;
+}
+#main
+{
+    background-color: #fff;
+    width: 960px;
+    margin: 0 auto;
+    float: left;
+    border-left: solid 2px #d6f;
+    border-right: solid 2px #d6f;
+}
+#center
+{
+    float: left;
+}
+#footer
+{
+    border-top: solid 1px #d6f;
+    float: left;
+    width: 100%;
+    margin: 25px 0 25px 0;
+    padding: 15px 0 0 0;
+    height: 80px;
+}
+.half-width
+{
+    width: 50%;
+    float: left;
+    clear: none;
+}
+.right-alignment
+{
+    text-align: right;
+}
+.under-construction
+{
+    margin: 15px 0 25px 0;
+}
+body
+{
+    font-family: Verdana, sans-serif;
+    font-size: 1.1em; /*background-color: #e9beff;*/
+    background: #fbf0ff; /* Old browsers */ /* IE9 SVG, needs conditional override of 'filter' to 'none' */
+}
+#dialog_link
+{
+    padding: .4em 1em .4em 20px;
+    text-decoration: none;
+    position: relative;
+}
+#dialog_link span.ui-icon
+{
+    margin: 0 5px 0 0;
+    position: absolute;
+    left: .2em;
+    top: 50%;
+    margin-top: -8px;
+}
+ul#icons
+{
+    margin: 0;
+    padding: 0;
+}
+ul#icons li
+{
+    margin: 2px;
+    position: relative;
+    padding: 4px 0;
+    cursor: pointer;
+    float: left;
+    list-style: none;
+}
+ul#icons span.ui-icon
+{
+    float: left;
+    margin: 0 4px;
+}
