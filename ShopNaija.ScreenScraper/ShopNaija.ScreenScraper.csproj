@@ -43,10 +43,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Scrapers\IScraperImplementation.cs" />
+    <Compile Include="Scrapers\MonsoonScraperImplementation.cs" />
     <Compile Include="ProductData.cs" />
     <Compile Include="ScrapedData.cs" />
     <Compile Include="Scraper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Scrapers\ShoeScraperImplementation.cs" />
+    <Compile Include="Scrapers\ShoeScraperImplementationBase.cs" />
+    <Compile Include="Scrapers\ZaraScraperImplementation.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
