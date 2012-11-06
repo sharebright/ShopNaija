@@ -10,8 +10,8 @@ namespace ShopNaija.ScreenScraper.Scrapers
 	{
 		public ZaraScraperImplementation(string rootUrlToGetDataFrom, string baseAddress)
 		{
-			this.rootUrlToGetDataFrom = rootUrlToGetDataFrom;
-			this.baseAddress = baseAddress;
+			RootUrlToGetDataFrom = rootUrlToGetDataFrom;
+			BaseAddress = baseAddress;
 		}
 
 		public IEnumerable<ProductData> RecurseNodes(HtmlDocument document)
@@ -60,7 +60,7 @@ namespace ShopNaija.ScreenScraper.Scrapers
 							}
 							var subProduct = ProductData.Clone(product);
 
-							var splits = p.SelectSingleNode("a").Attributes["title"].Value.Split(new string[] {" "}, StringSplitOptions.None);
+							var splits = p.SelectSingleNode("a").Attributes["title"].Value.Split(new[] {" "}, StringSplitOptions.None);
 							var l = splits[1];
 							if (splits.Length > 2)
 							{
@@ -108,7 +108,7 @@ namespace ShopNaija.ScreenScraper.Scrapers
 							continue;
 						}
 						var subProduct = ProductData.Clone(product);
-						var splits = p.SelectSingleNode("a").Attributes["title"].Value.Split(new string[] {" "}, StringSplitOptions.None);
+						var splits = p.SelectSingleNode("a").Attributes["title"].Value.Split(new[] {" "}, StringSplitOptions.None);
 						var l = splits[1];
 						if (splits.Length > 2)
 						{
@@ -166,13 +166,12 @@ namespace ShopNaija.ScreenScraper.Scrapers
 				Console.WriteLine("Exception thrown trying to parse: {0}", productLink);
 			}
 
-			HtmlNodeCollection colours = null;
 			HtmlNodeCollection sizes = null;
 			var productForm = doc.SelectNodes("//div[@class='formProduct']").First();
 			//Debugger.Launch();
 			product.Option1Name = "Title";
 			product.Option1Value = "Title";
-			colours = doc.SelectNodes("//ul[contains(@class,'colorImage')]/li");
+			HtmlNodeCollection colours = doc.SelectNodes("//ul[contains(@class,'colorImage')]/li");
 			if (colours != null)
 			{
 				product.Option1Name = "Colour";
@@ -198,13 +197,9 @@ namespace ShopNaija.ScreenScraper.Scrapers
 			}
 
 			var notAvailable = doc.SelectNodes("//div[@class='tableOptions']/table/tr");
-			foreach (var check in notAvailable)
+			if (notAvailable.Any())
 			{
-				if (notAvailable != null)
-				{
-					sizes = notAvailable.First().SelectNodes("//b[@class='sizeDetail1']");
-					break;
-				}
+				sizes = notAvailable.First().SelectNodes("//b[@class='sizeDetail1']");
 			}
 
 			if (productForm.InnerHtml.Contains("Size"))

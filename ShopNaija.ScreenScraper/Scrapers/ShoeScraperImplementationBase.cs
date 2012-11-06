@@ -5,8 +5,8 @@ namespace ShopNaija.ScreenScraper.Scrapers
 {
 	public class ShoeScraperImplementationBase
 	{
-		protected string rootUrlToGetDataFrom;
-		protected string baseAddress;
+		protected string RootUrlToGetDataFrom;
+		protected string BaseAddress;
 
 		protected string DiscernType(string body, string title)
 		{
@@ -36,7 +36,7 @@ namespace ShopNaija.ScreenScraper.Scrapers
 		public string GetHtmlString(string urlToGetDataFrom = "")
 		{
 			string responseHtml;
-			var source = string.IsNullOrEmpty(urlToGetDataFrom) ? this.rootUrlToGetDataFrom : urlToGetDataFrom;
+			var source = string.IsNullOrEmpty(urlToGetDataFrom) ? RootUrlToGetDataFrom : urlToGetDataFrom;
 			var request = WebRequest.Create(source);
 
 			using (var response = request.GetResponse())

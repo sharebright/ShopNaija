@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using HtmlAgilityPack;
 
@@ -9,8 +10,8 @@ namespace ShopNaija.ScreenScraper.Scrapers
 	{
 		public ShoeScraperImplementation(string rootUrlToGetDataFrom,string baseAddress)
 		{
-			this.rootUrlToGetDataFrom = rootUrlToGetDataFrom;
-			this.baseAddress = baseAddress;
+			this.RootUrlToGetDataFrom = rootUrlToGetDataFrom;
+			this.BaseAddress = baseAddress;
 		}
 
 		public IEnumerable<ProductData> RecurseNodes(HtmlDocument document)
@@ -22,13 +23,13 @@ namespace ShopNaija.ScreenScraper.Scrapers
 			foreach (var node in nodes)
 			{
 				// /a/img[@src]
-				var img = baseAddress + node.SelectNodes("a/img").First().Attributes["src"].Value;
+				var img = BaseAddress + node.SelectNodes("a/img").First().Attributes["src"].Value;
 				var title = node.SelectNodes("p[@class='title']/a").First().InnerText;
 				var price = (Convert.ToDouble(
 					node.SelectNodes("p[@class='price']/a").First().InnerText
 						.Replace("&pound;", string.Empty)
 						.Split(new[] { " was " }, StringSplitOptions.RemoveEmptyEntries)[0]
-				             	) * 1.5 * 270).ToString();
+				             	) * 1.5 * 270).ToString(CultureInfo.InvariantCulture);
 				var product = new ProductData { Image = img, Title = title, Price = price };
 
 				DeepHarvestShoeNode(node, product);
@@ -78,7 +79,7 @@ namespace ShopNaija.ScreenScraper.Scrapers
 
 		private void DeepHarvestShoeNode(HtmlNode node, ProductData product)
 		{
-			var productLink = baseAddress + node.SelectNodes("p[@class='view_buy']/a").First().Attributes["href"].Value;
+			var productLink = BaseAddress + node.SelectNodes("p[@class='view_buy']/a").First().Attributes["href"].Value;
 
 			var mainProductHtml = new HtmlDocument();
 			HtmlNode doc = HtmlNode.CreateNode("");

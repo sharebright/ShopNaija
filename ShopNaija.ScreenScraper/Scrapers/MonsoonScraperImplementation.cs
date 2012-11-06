@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using HtmlAgilityPack;
 
@@ -9,8 +10,8 @@ namespace ShopNaija.ScreenScraper.Scrapers
 	{
 		public MonsoonScraperImplementation(string rootUrlToGetDataFrom, string baseAddress)
 		{
-			this.rootUrlToGetDataFrom = rootUrlToGetDataFrom;
-			this.baseAddress = baseAddress;
+			this.RootUrlToGetDataFrom = rootUrlToGetDataFrom;
+			this.BaseAddress = baseAddress;
 		}
 
 		public IEnumerable<ProductData> RecurseNodes(HtmlDocument document)
@@ -29,11 +30,11 @@ namespace ShopNaija.ScreenScraper.Scrapers
 						.Replace("&pound;", string.Empty)
 						.Replace("£", "")
 						.Split(new[] { " was " }, StringSplitOptions.RemoveEmptyEntries)[0]
-				             	) * 1.5 * 270).ToString();
+				             	) * 1.5 * 270).ToString(CultureInfo.InvariantCulture);
 				var product = new ProductData { Image = img, Title = title, Price = price };
 
 				DeepHarvestMonsoonNode(node, product);
-				int count = 0;
+				var count = 0;
 
 				foreach (var p in product.Colours)
 				{
@@ -76,10 +77,10 @@ namespace ShopNaija.ScreenScraper.Scrapers
 
 		private void DeepHarvestMonsoonNode(HtmlNode node, ProductData product)
 		{
-			var productLink = baseAddress + node.SelectNodes("div[@class='productList_img']/a").First().Attributes["href"].Value;
+			var productLink = BaseAddress + node.SelectNodes("div[@class='productList_img']/a").First().Attributes["href"].Value;
 
 			var mainProductHtml = new HtmlDocument();
-			HtmlNode doc = HtmlNode.CreateNode("");
+			var doc = HtmlNode.CreateNode("");
 			try
 			{
 				mainProductHtml.LoadHtml(GetHtmlString(productLink));

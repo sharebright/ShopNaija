@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace ShopNaija.ScreenScraper
+﻿namespace ShopNaija.ScreenScraper
 {
     public class ProductData
     {
@@ -19,7 +14,7 @@ namespace ShopNaija.ScreenScraper
         public string Option2Value { get; set; }
         public string Option3Name { get; set; }
         public string Option3Value { get; set; }
-        public string SKU { get; set; }
+        public string Sku { get; set; }
         public string Weight { get; set; }
         public string InventoryTracker { get; set; }
         public string InventoryQuantity { get; set; }
@@ -37,14 +32,15 @@ namespace ShopNaija.ScreenScraper
 
         internal static ProductData Clone(ProductData product)
         {
-            ProductData p = new ProductData();
-            p.Handle = product.Handle;
-            p.Weight = product.Weight;
-            p.InventoryQuantity = product.InventoryQuantity;
-            p.InventoryPolicy = product.InventoryPolicy;
-            p.FulfillmentService = product.FulfillmentService;
-            p.Price = product.Price;
-            return p;
+        	return new ProductData
+        	{
+        	    Handle = product.Handle,
+        	    Weight = product.Weight,
+        	    InventoryQuantity = product.InventoryQuantity,
+        	    InventoryPolicy = product.InventoryPolicy,
+        	    FulfillmentService = product.FulfillmentService,
+        	    Price = product.Price
+        	};
         }
     }
 }
