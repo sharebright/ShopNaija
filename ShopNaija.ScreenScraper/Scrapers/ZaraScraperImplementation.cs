@@ -1,12 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using HtmlAgilityPack;
 
 namespace ShopNaija.ScreenScraper.Scrapers
 {
-	public class ZaraScraperImplementation : ShoeScraperImplementationBase, IScraperImplementation
+	public class ZaraScraperImplementation : ScraperImplementationBase, IScraperImplementation
 	{
 		public ZaraScraperImplementation(string rootUrlToGetDataFrom, string baseAddress)
 		{
@@ -25,20 +24,27 @@ namespace ShopNaija.ScreenScraper.Scrapers
 				var img =
 					node.SelectNodes("a/img").First().Attributes["data-src"].Value.Split(new[] {"?"}, StringSplitOptions.None)[0];
 				var title =
-					node.SelectNodes("div[@class='infoProd']/a").First().InnerText.Replace("\n", "").Replace("\t", "").Trim();
+					node.SelectNodes("div[@class='infoProd']/a")
+					.First()
+					.InnerText
+					.Replace("\n", "")
+					.Replace("\t", "")
+					.Replace("É", "E")
+					.Replace("É".ToLower(), "e")
+					.Trim();
 
 				var price = (
-				            	Convert.ToDouble(
-				            		node.SelectNodes("div[@class='infoProd']/p[@class='price']").First().InnerText
-				            			.Replace("\n", "")
-				            			.Replace("\t", "")
-				            			.Replace("\r", "")
-				            			.Replace("GBP", "")
-				            			.Replace("&pound;", string.Empty)
-				            			.Replace("�", "")
-				            			.Trim()
-				            			.Split(new[] {" was "}, StringSplitOptions.RemoveEmptyEntries)[0]
-				            		)*1.5*270).ToString(CultureInfo.InvariantCulture);
+								(Convert.ToDouble(
+									node.SelectNodes("div[@class='infoProd']/p[@class='price']").First().InnerText
+										.Replace("\n", "")
+										.Replace("\t", "")
+										.Replace("\r", "")
+										.Replace("GBP", "")
+										.Replace("&pound;", string.Empty)
+										.Replace("£", "")
+										.Trim()
+										.Split(new[] {" was "}, StringSplitOptions.RemoveEmptyEntries)[0]
+								) * 1.125 + 8) * 1.02).ToString("0.00");
 
 				var product = new ProductData {Image = img, Title = title, Price = price};
 
@@ -47,7 +53,7 @@ namespace ShopNaija.ScreenScraper.Scrapers
 				bool added = false;
 				foreach (var p in product.Colours)
 				{
-					if (product.Sizes != null && product.Sizes.Count > 0)
+					if (product.Sizes != null && product.Sizes.Any())
 					{
 						foreach (var s in product.Sizes)
 						{
@@ -75,23 +81,23 @@ namespace ShopNaija.ScreenScraper.Scrapers
 
 								subProduct.Option2Name = "Size";
 								subProduct.Option2Value = s.InnerText == string.Empty
-								                          	? s.Attributes["value"].Value.Replace("&frac12;", ".5")
-								                          	: s.InnerText
-								                          	  	.Replace("\r", "")
-								                          	  	.Replace("\r", "")
-								                          	  	.Replace("&nbsp;", "")
-								                          	  	.Trim();
+															? s.Attributes["value"].Value.Replace("&frac12;", ".5")
+															: s.InnerText
+																.Replace("\r", "")
+																.Replace("\r", "")
+																.Replace("&nbsp;", "")
+																.Trim();
 							}
 							else
 							{
 								subProduct.Option1Name = "Size";
 								subProduct.Option1Value = s.InnerText == string.Empty
-								                          	? s.Attributes["value"].Value.Replace("&frac12;", ".5")
-								                          	: s.InnerText
-								                          	  	.Replace("\r", "")
-								                          	  	.Replace("\r", "")
-								                          	  	.Replace("&nbsp;", "")
-								                          	  	.Trim();
+															? s.Attributes["value"].Value.Replace("&frac12;", ".5")
+															: s.InnerText
+																.Replace("\r", "")
+																.Replace("\r", "")
+																.Replace("&nbsp;", "")
+																.Trim();
 
 							}
 							data.Add(subProduct);
@@ -146,20 +152,24 @@ namespace ShopNaija.ScreenScraper.Scrapers
 				product.Handle = doc.SelectNodes("//div[@class='prodInfoDesc']/h2")
 					.First()
 					.InnerText
+					.Replace("É", "E")
+					.Replace("É".ToLower(), "e")
 					.Replace(" ", "-")
 					.Replace("\r", "")
 					.Replace("\n", "")
 					.Replace("\t", "")
 					.Replace("&amp;-", "")
+					.Replace("É", "E")
+					.Replace("É".ToLower(), "e")
 					.Trim();
 
 				product.Body = "\"" +
-				               doc.SelectNodes("//div[@class='prodInfoDesc']/p[@class='description']").First().InnerText.Replace(
-				               	"\"", "'")
-				               	.Replace("\r", "")
-				               	.Replace("\n", "")
-				               	.Replace("\t", "") + "\"";
-				product.Type = DiscernType(product.Body, product.Title);
+							   doc.SelectNodes("//div[@class='prodInfoDesc']/p[@class='description']").First().InnerText.Replace(
+								"\"", "'")
+								.Replace("\r", "")
+								.Replace("\n", "")
+								.Replace("\t", "") + "\"";
+				product.Type = "Mens Knitwear"; //DiscernType(product.Body, product.Title);
 			}
 			catch
 			{
@@ -176,7 +186,7 @@ namespace ShopNaija.ScreenScraper.Scrapers
 			{
 				product.Option1Name = "Colour";
 				var splits = colours.First().SelectSingleNode("a").Attributes["title"].Value.Split(new[] {" "},
-				                                                                                   StringSplitOptions.None);
+																								   StringSplitOptions.None);
 				var t = splits[1];
 				if (t != "not")
 				{
@@ -235,7 +245,7 @@ namespace ShopNaija.ScreenScraper.Scrapers
 			product.InventoryPolicy = "continue";
 			product.Vendor = "Zara";
 			product.InventoryQuantity = "0";
-			product.Tags = "Jeans denim";
+			product.Tags = "Mens Knitwear";
 			product.Sizes = sizes ?? new HtmlNodeCollection(null);
 			product.Colours = colours ?? new HtmlNodeCollection(null);
 		}

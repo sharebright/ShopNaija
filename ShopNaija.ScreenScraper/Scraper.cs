@@ -21,16 +21,23 @@ namespace ShopNaija.ScreenScraper
 			switch (baseAddress)
 			{
 				case "http://www.henryjamesshoes.com":
-					scraper = new ShoeScraperImplementation(rootUrlToGetDataFrom, baseAddress);
+					scraper = new ScraperImplementation(rootUrlToGetDataFrom, baseAddress);
 					break;
+				case "http://uk.accessorize.com":
 				case "http://uk.monsoon.co.uk":
 					scraper = new MonsoonScraperImplementation(rootUrlToGetDataFrom, baseAddress);
 					break;
 				case "http://www.zara.com":
 					scraper = new ZaraScraperImplementation(rootUrlToGetDataFrom, baseAddress);
 					break;
+				case "http://localhost:8089":
+					scraper = new MatalanScraperImplementation(rootUrlToGetDataFrom, baseAddress);
+					break;
+				case "http://www.forever21.com":
+					scraper = new Forever21ScraperImplementation(rootUrlToGetDataFrom, baseAddress);
+					break;
 				default:
-					scraper = new ShoeScraperImplementation(rootUrlToGetDataFrom, baseAddress);
+					scraper = new ScraperImplementation(rootUrlToGetDataFrom, baseAddress);
 					break;
 			}
 
@@ -45,7 +52,7 @@ namespace ShopNaija.ScreenScraper
 			document.LoadHtml(result);
 			var scrapedData = new ScrapedData
 			{
-			    Data = scraper.RecurseNodes(document)
+				Data = scraper.RecurseNodes(document)
 			};
 
 			return scrapedData;

@@ -1,4 +1,7 @@
-﻿namespace ShopNaija.ScreenScraper
+﻿using System.Collections.Generic;
+using HtmlAgilityPack;
+
+namespace ShopNaija.ScreenScraper
 {
     public class ProductData
     {
@@ -28,7 +31,7 @@
 
         public HtmlAgilityPack.HtmlNodeCollection Colours { get; set; }
 
-        public HtmlAgilityPack.HtmlNodeCollection Sizes { get; set; }
+        public IEnumerable<HtmlNode> Sizes { get; set; }
 
         internal static ProductData Clone(ProductData product)
         {
