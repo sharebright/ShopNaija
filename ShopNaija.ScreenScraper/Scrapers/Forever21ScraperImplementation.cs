@@ -16,10 +16,13 @@ namespace ShopNaija.ScreenScraper.Scrapers
 
 		public IEnumerable<ProductData> RecurseNodes(HtmlDocument document)
 		{
+			Debugger.Launch();
 			var nodes = document.DocumentNode.SelectNodes("//table[@class='dlCategoryList']/tr/td/table");
 
 			var data = new List<ProductData>();
 
+			var titleAndHandle = new Dictionary<string, string>();
+	
 			foreach (var node in nodes)
 			{
 				// /a/img[@src]
@@ -28,20 +31,40 @@ namespace ShopNaija.ScreenScraper.Scrapers
 					.Replace("&acute;", "e")
 					.Replace("w/", "with")
 					.Replace("&amp;", "and")
+					.Replace("&trade;", "")
 					.Replace("&", "and")
 					.Replace("3/4", "3-quarter")
+					.Replace("\t", " ")
+					.Replace("/t", " ")
 					.Trim();
 
-				var price = ((Convert.ToDouble(
-					node.SelectNodes("tr//font[@class='price']").First().InnerText
-						.Replace("&pound;", string.Empty).Replace("£", string.Empty)
-						.Split(new[] { " was " }, StringSplitOptions.RemoveEmptyEntries)[0]
-								  ) * 1.3 + 15) * 1.02).ToString("0.00");
+				string price = "";
+				if (node.SelectNodes("tr//font[@class='oprice']") != null)
+				{
+					price = ((Convert.ToDouble(
+						node.SelectNodes("tr//font[@class='oprice']").First().InnerText
+							.Replace("Orig.:", "")
+							.Replace("&pound;", string.Empty).Replace("£", string.Empty)
+							.Split(new[] {" was "}, StringSplitOptions.RemoveEmptyEntries)[0]
+						          )*1.3 + 15)*1.02).ToString("0.00");
+				}
+				else
+				{
+					price = ((Convert.ToDouble(
+						node.SelectNodes("tr//font[@class='price']").First().InnerText
+							.Replace("Now:", "")
+							.Replace("&pound;", string.Empty).Replace("£", string.Empty)
+							.Split(new[] {" was "}, StringSplitOptions.RemoveEmptyEntries)[0]
+						          )*1.3 + 15)*1.02).ToString("0.00");
+				}
 
 				if (Convert.ToDecimal(price) > 60m) continue;
 				//Debugger.Launch();
-				var image = node.SelectNodes("tr/td/div[@class='ItemImage']/a/img").First().Attributes["src"].Value;
-				var product = new ProductData { Handle = title.Replace(" ", "-"), Title = title, Price = price, Image = image };
+				var image = node.SelectNodes("tr/td/div/a/img").First().Attributes["src"].Value;
+				var handle = title.Replace(" ", "-");
+				handle = CheckHandle(handle, titleAndHandle);
+				titleAndHandle.Add(handle,title);
+				var product = new ProductData { Handle = handle, Title = title, Price = price, Image = image };
 
 				//Debugger.Launch();
 				var images = DeepHarvestForever21Node(node, product).ToList();
@@ -71,9 +94,20 @@ namespace ShopNaija.ScreenScraper.Scrapers
 			return data;
 		}
 
+		private static string CheckHandle(string handle, IDictionary<string, string> titleAndHandle, int count = 0)
+		{
+			count++;
+			var newHandle = handle;
+			if (titleAndHandle.ContainsKey(handle))
+			{
+				newHandle = CheckHandle(string.Format(handle + "-{0}", count), titleAndHandle, count);
+			}
+			return newHandle;
+		}
+
 		private IEnumerable<string> DeepHarvestForever21Node(HtmlNode node, ProductData product)
 		{
-			var productLink = node.SelectNodes("tr/td/div[@class='ItemImage']/a").First().Attributes["href"].Value;
+			var productLink = node.SelectNodes("tr/td/div/a").First().Attributes["href"].Value;
 
 			var mainProductHtml = new HtmlDocument();
 			var doc = HtmlNode.CreateNode("");
@@ -86,37 +120,57 @@ namespace ShopNaija.ScreenScraper.Scrapers
 				images = new[] { doc.SelectNodes("//img[@class='ItemImage']").First().Attributes["src"].Value };
 				try
 				{
-					var body = doc.SelectNodes("//td[@class='productdesc']/span/p").First().InnerText.Replace("\"", "'").Replace("&nbsp;", " ").Replace("Love 21 - ", "").Replace("Forever 21 ", "").Replace("&eacute", "e").Replace("&acute", "e").Trim();
+					var body = doc.SelectNodes("//td[@class='productdesc']/span/p").First().InnerText.Replace("\"", "'").Replace("- US size - refer to size chart for conversion","").Replace("See Return Policy", "").Replace("\t", " ").Replace("/t", " ").Replace("&trade;", "").Replace("&amp;", "and").Replace("&", "and").Replace("&nbsp;", " ").Replace("Love 21 - ", "").Replace("Forever 21 ", "").Replace("&eacute", "e").Replace("&acute", "e").Trim();
 					var indexOf = body.IndexOf("Product Code :", System.StringComparison.Ordinal);
 					body = body.Substring(0, indexOf);
 					product.Body = "\"" + body + "\"";
 				}
 				catch
 				{
-					var body = doc.SelectNodes("//td[@class='productdesc']/span").First().InnerText.Replace("\"", "'").Replace("&nbsp;", " ").Replace("Love 21 - ", "").Replace("Forever 21 ", "").Replace("&eacute", "e").Replace("&acute", "e").Trim();
+					var body = doc.SelectNodes("//td[@class='productdesc']/span").First().InnerText.Replace("\"", "'").Replace("- US size - refer to size chart for conversion", "").Replace("See Return Policy", "").Replace("\t", " ").Replace("/t", " ").Replace("&trade;", "").Replace("&amp;", "and").Replace("&", "and").Replace("&nbsp;", " ").Replace("Love 21 - ", "").Replace("Forever 21 ", "").Replace("&eacute", "e").Replace("&acute", "e").Trim();
 					var indexOf = body.IndexOf("Product Code :", System.StringComparison.Ordinal);
 					body = body.Substring(0, indexOf);
 					product.Body = "\"" + body + "\"";
 				}
-				product.Type = "Womens Dresses";
+				product.Type = "Mens Shoes";
 			}
 			catch (Exception e)
 			{
 				Console.WriteLine("Exception thrown trying to parse: {0}", productLink);
 			}
 
-			var medium = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 1)
+			var xsmall = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 0)
 			{
-				InnerHtml = "Medium"
+				InnerHtml = "6"
 			};
-			var large = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 2)
+			var small = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 1)
 			{
-				InnerHtml = "Large"
+				InnerHtml = "7"
 			};
-			var sizes = new HtmlNode[] { medium, large };
+			var medium = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 2)
+			{
+				InnerHtml = "8"
+			};
+			var large = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 3)
+			{
+				InnerHtml = "9"
+			};
+			var xlarge = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 4)
+			{
+				InnerHtml = "10"
+			};
+			var xxlarge = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 5)
+			{
+				InnerHtml = "11"
+			};
+			var xxxlarge = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 6)
+			{
+				InnerHtml = "12"
+			};
+			var sizes = new HtmlNode[] { xsmall ,small, medium, large, xlarge, xxlarge,xxxlarge };
 
 			product.Option1Name = "Size";
-			product.Option1Value = "Small";
+			product.Option1Value = "6";
 
 
 
@@ -126,7 +180,7 @@ namespace ShopNaija.ScreenScraper.Scrapers
 			product.InventoryPolicy = "continue";
 			product.Vendor = "Forever21";
 			product.InventoryQuantity = "0";
-			product.Tags = "Womens Dresses";
+			product.Tags = "Mens Shoes";
 			product.Sizes = sizes;
 
 			return images;
