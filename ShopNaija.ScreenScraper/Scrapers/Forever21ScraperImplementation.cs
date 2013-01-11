@@ -16,13 +16,14 @@ namespace ShopNaija.ScreenScraper.Scrapers
 
 		public IEnumerable<ProductData> RecurseNodes(HtmlDocument document)
 		{
-			Debugger.Launch();
+			//Debugger.Launch();
+
 			var nodes = document.DocumentNode.SelectNodes("//table[@class='dlCategoryList']/tr/td/table");
 
 			var data = new List<ProductData>();
 
 			var titleAndHandle = new Dictionary<string, string>();
-	
+
 			foreach (var node in nodes)
 			{
 				// /a/img[@src]
@@ -45,8 +46,8 @@ namespace ShopNaija.ScreenScraper.Scrapers
 						node.SelectNodes("tr//font[@class='oprice']").First().InnerText
 							.Replace("Orig.:", "")
 							.Replace("&pound;", string.Empty).Replace("£", string.Empty)
-							.Split(new[] {" was "}, StringSplitOptions.RemoveEmptyEntries)[0]
-						          )*1.3 + 15)*1.02).ToString("0.00");
+							.Split(new[] { " was " }, StringSplitOptions.RemoveEmptyEntries)[0]
+								  ) * 1.4 + 12) * 1.02).ToString("0.00");
 				}
 				else
 				{
@@ -54,16 +55,16 @@ namespace ShopNaija.ScreenScraper.Scrapers
 						node.SelectNodes("tr//font[@class='price']").First().InnerText
 							.Replace("Now:", "")
 							.Replace("&pound;", string.Empty).Replace("£", string.Empty)
-							.Split(new[] {" was "}, StringSplitOptions.RemoveEmptyEntries)[0]
-						          )*1.3 + 15)*1.02).ToString("0.00");
+							.Split(new[] { " was " }, StringSplitOptions.RemoveEmptyEntries)[0]
+								  ) * 1.4 + 12) * 1.02).ToString("0.00");
 				}
 
-				if (Convert.ToDecimal(price) > 60m) continue;
+				if (Convert.ToDecimal(price) > 79.99m) continue;
 				//Debugger.Launch();
 				var image = node.SelectNodes("tr/td/div/a/img").First().Attributes["src"].Value;
 				var handle = title.Replace(" ", "-");
 				handle = CheckHandle(handle, titleAndHandle);
-				titleAndHandle.Add(handle,title);
+				titleAndHandle.Add(handle, title);
 				var product = new ProductData { Handle = handle, Title = title, Price = price, Image = image };
 
 				//Debugger.Launch();
@@ -74,7 +75,7 @@ namespace ShopNaija.ScreenScraper.Scrapers
 				{
 					if (count == 0)
 					{
-//if (data.Contains())
+						//if (data.Contains())
 						data.Add(product);
 						count++;
 						continue;
@@ -120,7 +121,7 @@ namespace ShopNaija.ScreenScraper.Scrapers
 				images = new[] { doc.SelectNodes("//img[@class='ItemImage']").First().Attributes["src"].Value };
 				try
 				{
-					var body = doc.SelectNodes("//td[@class='productdesc']/span/p").First().InnerText.Replace("\"", "'").Replace("- US size - refer to size chart for conversion","").Replace("See Return Policy", "").Replace("\t", " ").Replace("/t", " ").Replace("&trade;", "").Replace("&amp;", "and").Replace("&", "and").Replace("&nbsp;", " ").Replace("Love 21 - ", "").Replace("Forever 21 ", "").Replace("&eacute", "e").Replace("&acute", "e").Trim();
+					var body = doc.SelectNodes("//td[@class='productdesc']/span/p").First().InnerText.Replace("\"", "'").Replace("- US size - refer to size chart for conversion", "").Replace("See Return Policy", "").Replace("\t", " ").Replace("/t", " ").Replace("&trade;", "").Replace("&amp;", "and").Replace("&", "and").Replace("&nbsp;", " ").Replace("Love 21 - ", "").Replace("Forever 21 ", "").Replace("&eacute", "e").Replace("&acute", "e").Trim();
 					var indexOf = body.IndexOf("Product Code :", System.StringComparison.Ordinal);
 					body = body.Substring(0, indexOf);
 					product.Body = "\"" + body + "\"";
@@ -132,7 +133,7 @@ namespace ShopNaija.ScreenScraper.Scrapers
 					body = body.Substring(0, indexOf);
 					product.Body = "\"" + body + "\"";
 				}
-				product.Type = "Mens Shoes";
+				product.Type = "Womens T-Shirts";
 			}
 			catch (Exception e)
 			{
@@ -141,36 +142,68 @@ namespace ShopNaija.ScreenScraper.Scrapers
 
 			var xsmall = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 0)
 			{
-				InnerHtml = "6"
+				InnerHtml = "S"
 			};
 			var small = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 1)
 			{
-				InnerHtml = "7"
+				InnerHtml = "M"
 			};
 			var medium = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 2)
 			{
-				InnerHtml = "8"
+				InnerHtml = "L"
 			};
 			var large = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 3)
 			{
-				InnerHtml = "9"
+				InnerHtml = "XL"
 			};
 			var xlarge = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 4)
 			{
-				InnerHtml = "10"
+				InnerHtml = ""
 			};
 			var xxlarge = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 5)
 			{
-				InnerHtml = "11"
+				InnerHtml = "38L"
 			};
 			var xxxlarge = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 6)
 			{
-				InnerHtml = "12"
+				InnerHtml = "40S"
 			};
-			var sizes = new HtmlNode[] { xsmall ,small, medium, large, xlarge, xxlarge,xxxlarge };
+			var xxxxlarge = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 7)
+			{
+				InnerHtml = "40M"
+			};
+			var xxxxxlarge = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 8)
+			{
+				InnerHtml = "40L"
+			};
+			var xl = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 9)
+			{
+				InnerHtml = "42S"
+			};
+			var xxl = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 10)
+			{
+				InnerHtml = "42M"
+			};
+			var xxxl = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 11)
+			{
+				InnerHtml = "42L"
+			};
+			var xl1 = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 12)
+			{
+				InnerHtml = "44S"
+			};
+			var xxl1 = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 13)
+			{
+				InnerHtml = "44M"
+			};
+			var xxxl1 = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 14)
+			{
+				InnerHtml = "44L"
+			};
+			var sizes = new HtmlNode[] { xsmall, small, medium, large/*, xlarge, xxlarge, xxxlarge, xxxxlarge, xl, xxl, xxxl, xl1, xxl1, xxxl1 */};
 
 			product.Option1Name = "Size";
-			product.Option1Value = "6";
+			product.Option1Value = sizes.First().InnerText;
 
 
 
@@ -180,7 +213,7 @@ namespace ShopNaija.ScreenScraper.Scrapers
 			product.InventoryPolicy = "continue";
 			product.Vendor = "Forever21";
 			product.InventoryQuantity = "0";
-			product.Tags = "Mens Shoes";
+			product.Tags = "Womens T-Shirts";
 			product.Sizes = sizes;
 
 			return images;
