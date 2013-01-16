@@ -44,6 +44,10 @@ namespace ShopNaija.ScreenScraper
                 case "http://www.hm.com":
                     scraper = new HMScraperImplementation(rootUrlToGetDataFrom, baseAddress);
                     break;
+                case "dp":
+                case "http://www.dorothyperkins.com":
+                    scraper = new DPScraperImplementation(rootUrlToGetDataFrom, baseAddress);
+                    break;
                 default:
                     scraper = new ScraperImplementation(rootUrlToGetDataFrom, baseAddress);
                     break;

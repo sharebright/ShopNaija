@@ -2,19 +2,24 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Xml;
+using System.Xml.Linq;
 using HtmlAgilityPack;
+using SHDocVw;
+using WebBrowser = System.Windows.Forms.WebBrowser;
 
 namespace ShopNaija.ScreenScraper.Scrapers
 {
-    public class BarrattsScraperImplementation : ScraperImplementationBase, IScraperImplementation
+    public class DPScraperImplementation : ScraperImplementationBase, IScraperImplementation
     {
-        private const double profitRate = 1.1975;
-        private const double deliveryRate = 9;
+    	private WebBrowser webBrowser;
+    	private const double profitRate = 1.235;
+        private const double deliveryRate = 6;
         private const double cardRate = 1.02;
         private const string productType = "Womens Shoes";
-        private const string vendor = "Barratts";
+        private const string vendor = "HM";
 
-        public BarrattsScraperImplementation(string rootUrlToGetDataFrom, string baseAddress)
+        public DPScraperImplementation(string rootUrlToGetDataFrom, string baseAddress)
         {
             RootUrlToGetDataFrom = rootUrlToGetDataFrom;
             BaseAddress = baseAddress;
@@ -23,8 +28,8 @@ namespace ShopNaija.ScreenScraper.Scrapers
         public IEnumerable<ProductData> RecurseNodes(HtmlDocument document)
         {
             //Debugger.Launch();
-
-            var nodes = document.DocumentNode.SelectNodes("//div[@id='productlister']/ul/li[@class='result']");
+            var nodes = document.DocumentNode.SelectNodes("//ul[@class = 'product']");
+            //var nodes = document.DocumentNode.SelectNodes("//div/ul[@id='list-products']/li").Where(x => x.Attributes["class"].Value != "getTheLook");
 
             var data = new List<ProductData>();
 
@@ -33,54 +38,67 @@ namespace ShopNaija.ScreenScraper.Scrapers
             foreach (var node in nodes)
             {
                 // /a/img[@src]
-                var title = node.SelectNodes("div[contains(@class, 'product-title')]").First()
-                    .InnerText
+                var title = node.SelectNodes("li[@class='product_description']/a").First().InnerText
                     .Replace("&eacute;", "e")
                     .Replace("&acute;", "e")
                     .Replace("w/", "with")
                     .Replace("&reg;", "")
+                    .Replace("From", "")
                     .Replace("&amp;", "and")
                     .Replace("&trade;", "")
                     .Replace("&", "and")
                     .Replace("3/4", "3-quarter")
                     .Replace("\t", " ")
+                    .Replace("\r", " ")
+                    .Replace("\n", " ")
                     .Replace("/t", " ")
-                    .Replace("/t", " ")
-                    .Replace("'", " ")
+                    .Replace("'", " ").Split(new string[] { "£" }, StringSplitOptions.RemoveEmptyEntries)[0]
                     .Trim();
 
                 string price = "";
-                var amounts = node.SelectNodes("div[@class = 'productdisplayprice']/span[@class='amount']");
+                var amounts = node.SelectNodes("li[@class='product_price']");
                 if (amounts != null)
                 {
-                    price = ((Convert.ToDouble(
-                        amounts.First().InnerText
+                    var priceArray = new string[] { };
+                    try
+                    {
+                    	var innerText = amounts.First().InnerText;
+                    	priceArray =
+                            innerText
                             .Replace("Orig.:", "")
-                            .Replace("&pound;", string.Empty).Replace("£", string.Empty).Replace("&#163;", string.Empty)
-                            .Split(new[] { " was " }, StringSplitOptions.RemoveEmptyEntries)[0]
-                                  ) * profitRate + deliveryRate) * cardRate).ToString("0.00");
-                }
-                /*else
-                {
-                    price = ((Convert.ToDouble(
-                        node.SelectNodes("tr//font[@class='price']").First().InnerText
-                            .Replace("Now:", "")
-                            .Replace("&pound;", string.Empty).Replace("£", string.Empty).Replace("&#163;", string.Empty)
-                            .Split(new[] { " was " }, StringSplitOptions.RemoveEmptyEntries)[0]
-                                  ) * 1.375 + 9) * 1.02).ToString("0.00");
-                }*/
+                            .Replace("From ", "")
+                            .Replace("\r", "")
+                            .Replace("\n", "")
+                            .Replace("&pound;", string.Empty)
+                            .Replace("&#163;", string.Empty)
+                            .Split(new[] { "£" }, StringSplitOptions.RemoveEmptyEntries);
 
-                if (Convert.ToDecimal(price) > 49.99m) continue;
+                        price = ((
+                            (Convert.ToDouble((priceArray[0]).Trim()) * profitRate + deliveryRate) * cardRate)
+                            .ToString("0.00"));
+                    }
+                    catch (Exception e)
+                    {
+                        Debugger.Launch();
+                        var t = e;
+                    }
+                }
+                else
+                {
+                	
+                }
+
+                if (Convert.ToDecimal(price) > 39.99m) continue;
                 //Debugger.Launch();
-                var imgSrc = node.SelectNodes("div[@class='thumbnailholder']/a/img").First().Attributes["src"].Value;
-                var image = imgSrc.StartsWith("/") ? BaseAddress + imgSrc : imgSrc;
+                var imgSrc = node.SelectNodes("li[@class='product_image']/a/img").First().Attributes["src"].Value.Replace(" ", "%20");
+                var image = "\"" + (imgSrc.StartsWith("//") ? "http:" + imgSrc : imgSrc) + "\"";
                 var handle = (productType + " " + Guid.NewGuid()).Replace(" ", "-");
                 handle = CheckHandle(handle, titleAndHandle);
                 titleAndHandle.Add(handle, title);
                 var product = new ProductData { Handle = handle, Title = title, Price = price, Image = image };
 
                 //Debugger.Launch();
-                var images = DeepHarvestBarrettNode(node, product).ToList();
+                var images = DeepHarvestDPNode(node, product).ToList();
                 if (images.First() == "skip") continue;
 
                 var count = 0;
@@ -98,7 +116,7 @@ namespace ShopNaija.ScreenScraper.Scrapers
                     subProduct.Option1Value = size.InnerText;
                     if (images.Count >= count)
                     {
-                        subProduct.Image = images[count - 1];
+                        subProduct.Image = "\"" + images[count - 1] + "\"";
                     }
                     count++;
                     data.Add(subProduct);
@@ -119,19 +137,13 @@ namespace ShopNaija.ScreenScraper.Scrapers
             return newHandle;
         }
 
-        private IEnumerable<string> DeepHarvestBarrettNode(HtmlNode node, ProductData product)
+        private IEnumerable<string> DeepHarvestDPNode(HtmlNode node, ProductData product)
         {
             var ignoreList = new List<string>();
 
-            ignoreList.Add("http://www.barratts.co.uk/en/decodelire-patterned-parisienne-notepad-306043");
-            ignoreList.Add("http://www.barratts.co.uk/en/decodelire-patterned-parisienne-notepad-306043");
-            ignoreList.Add("http://www.barratts.co.uk/en/floral-patterned-satchel-309455");
-            ignoreList.Add("http://www.barratts.co.uk/en/decodelire-patterned-cherry-notepad-306041");
-            ignoreList.Add("http://www.barratts.co.uk/en/decodelire-patterned-armelle-notepad-306040");
-            ignoreList.Add("http://www.barratts.co.uk/en/decodelire-patterned-mini-coin-purse-306032");
-            ignoreList.Add("http://www.barratts.co.uk/en/decodelire-patterned-shoulder-bag-306044");
+            // ignoreList.Add("http://www.hm.com/gb/product/07049?article=07049-B");
 
-            var productLink = node.SelectNodes("div[@class='thumbnailholder']/a").First().Attributes["href"].Value;
+            var productLink = node.SelectNodes("li[@class='product_description']/a").First().Attributes["href"].Value;
             if (ignoreList.Contains(productLink))
             {
                 return new[] { "skip" };
@@ -143,12 +155,19 @@ namespace ShopNaija.ScreenScraper.Scrapers
             try
             {
                 mainProductHtml.LoadHtml(GetHtmlString(productLink));
-                // //div[@id="productright"]/div[@class=product_info]/p
-                doc = mainProductHtml.DocumentNode;
-                var imgSrc = doc.SelectNodes("//dd[@class='productimage']/a/div/img").First().Attributes["src"].Value;
-                images = new[] {imgSrc.StartsWith("/") ? BaseAddress + imgSrc : imgSrc};
 
-                var body = doc.SelectNodes("//dd/h1")
+            	GetValue(productLink);
+
+            	//var s = b.Document.Body.InnerHtml;
+            	//doc = HtmlNode.CreateNode(s);
+
+            	var t = Doc;
+				// //div[@id="productright"]/div[@class=product_info]/p
+                doc = mainProductHtml.DocumentNode;
+                var imgSrc = doc.SelectNodes("//img[@id='product-image']").First().Attributes["src"].Value.Replace(" ", "%20");
+                images = new[] { imgSrc.StartsWith("//") ? "http:" + imgSrc : imgSrc };
+
+                var body = doc.SelectNodes("//div[@class='description']/p")
                         .First()
                         .InnerText
                         .Replace("\"", "'")
@@ -239,7 +258,7 @@ namespace ShopNaija.ScreenScraper.Scrapers
             IEnumerable<HtmlNode> sizeNodes = null;
             try
             {
-                sizeNodes = doc.SelectNodes("//div[@id='sizeSelectorThumbs']/ul/li")
+                sizeNodes = doc.SelectNodes("//ul[@id='options-variants']/li")
                                .Where(x => x.Attributes["class"].Value != "outOfStock");
             }
             catch
@@ -259,7 +278,7 @@ namespace ShopNaija.ScreenScraper.Scrapers
 
                 var htmlNode = new HtmlNode(HtmlNodeType.Element, mainProductHtml, count)
                     {
-                        InnerHtml = innerText
+                        InnerHtml = "\"" + innerText + "\""
                     };
                 sizes.Add(htmlNode);
             }
@@ -268,7 +287,6 @@ namespace ShopNaija.ScreenScraper.Scrapers
 
             product.Option1Name = "Size";
             product.Option1Value = sizes.First().InnerText;
-
 
 
             product.Sku = productLink;
@@ -283,5 +301,19 @@ namespace ShopNaija.ScreenScraper.Scrapers
 
             return images;
         }
+
+    	private void GetValue(string productLink)
+    	{
+    		webBrowser = new System.Windows.Forms.WebBrowser {AllowNavigation = true};
+    		webBrowser.DocumentCompleted += b_DocumentCompleted;
+    		webBrowser.Navigate(productLink);
+    	}
+
+		private string Doc{get { return webBrowser.Document.Body.InnerHtml; }}
+
+    	void b_DocumentCompleted(object sender, System.Windows.Forms.WebBrowserDocumentCompletedEventArgs e)
+		{
+			var b = sender as System.Windows.Forms.WebBrowser;
+		}
     }
 }

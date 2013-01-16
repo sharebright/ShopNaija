@@ -33,7 +33,7 @@ namespace ShopNaija.ScreenScraper
 
         public IEnumerable<HtmlNode> Sizes { get; set; }
 
-        internal static ProductData Clone(ProductData product)
+    	public static ProductData Clone(ProductData product)
         {
         	return new ProductData
         	{

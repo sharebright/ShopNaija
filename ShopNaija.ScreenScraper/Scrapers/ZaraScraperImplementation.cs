@@ -7,6 +7,11 @@ namespace ShopNaija.ScreenScraper.Scrapers
 {
 	public class ZaraScraperImplementation : ScraperImplementationBase, IScraperImplementation
 	{
+		private const double profitRate = 1.205;
+		private const double deliveryRate = 9;
+		private const double cardRate = 1.02;
+		private const string productType = "Womens Shoes";
+		private const string vendor = "Zara";
 		public ZaraScraperImplementation(string rootUrlToGetDataFrom, string baseAddress)
 		{
 			RootUrlToGetDataFrom = rootUrlToGetDataFrom;
@@ -19,10 +24,11 @@ namespace ShopNaija.ScreenScraper.Scrapers
 
 			var data = new List<ProductData>();
 
+			var titleAndHandle = new Dictionary<string, string>();
 			foreach (var node in nodes)
 			{
 				var img =
-					node.SelectNodes("a/img").First().Attributes["data-src"].Value.Split(new[] {"?"}, StringSplitOptions.None)[0];
+					node.SelectNodes("a/img").First().Attributes["data-src"].Value.Split(new[] { "?" }, StringSplitOptions.None)[0];
 				var title =
 					node.SelectNodes("div[@class='infoProd']/a")
 					.First()
@@ -43,125 +49,82 @@ namespace ShopNaija.ScreenScraper.Scrapers
 										.Replace("&pound;", string.Empty)
 										.Replace("£", "")
 										.Trim()
-										.Split(new[] {" was "}, StringSplitOptions.RemoveEmptyEntries)[0]
-								) * 1.125 + 8) * 1.02).ToString("0.00");
+										.Split(new[] { " - " }, StringSplitOptions.RemoveEmptyEntries)[0]
+								) * profitRate + deliveryRate) * cardRate).ToString("0.00");
 
-				var product = new ProductData {Image = img, Title = title, Price = price};
+				if (Convert.ToDecimal(price) > 49.99m) continue;
 
-				DeepHarvestZaraNode(node, product);
-				int count = 0;
-				bool added = false;
-				foreach (var p in product.Colours)
+				var handle = (productType + " " + Guid.NewGuid()).Replace(" ", "-");
+				handle = CheckHandle(handle, titleAndHandle);
+				titleAndHandle.Add(handle, title);
+				var product = new ProductData { Handle = handle, Title = title, Price = price, Image = img };
+
+				var images = DeepHarvestZaraNode(node, product).ToList();
+				var count = 0;
+				foreach (var size in product.Sizes)
 				{
-					if (product.Sizes != null && product.Sizes.Any())
+					if (count == 0)
 					{
-						foreach (var s in product.Sizes)
-						{
-							if (count == 0)
-							{
-								added = true;
-								data.Add(product);
-								count++;
-								continue;
-							}
-							var subProduct = ProductData.Clone(product);
-
-							var splits = p.SelectSingleNode("a").Attributes["title"].Value.Split(new[] {" "}, StringSplitOptions.None);
-							var l = splits[1];
-							if (splits.Length > 2)
-							{
-								l = splits[1] + " " + splits[2];
-							}
-
-							if (!l.Contains("not"))
-							{
-
-								subProduct.Option1Name = "Colour";
-								subProduct.Option1Value = l;
-
-								subProduct.Option2Name = "Size";
-								subProduct.Option2Value = s.InnerText == string.Empty
-															? s.Attributes["value"].Value.Replace("&frac12;", ".5")
-															: s.InnerText
-																.Replace("\r", "")
-																.Replace("\r", "")
-																.Replace("&nbsp;", "")
-																.Trim();
-							}
-							else
-							{
-								subProduct.Option1Name = "Size";
-								subProduct.Option1Value = s.InnerText == string.Empty
-															? s.Attributes["value"].Value.Replace("&frac12;", ".5")
-															: s.InnerText
-																.Replace("\r", "")
-																.Replace("\r", "")
-																.Replace("&nbsp;", "")
-																.Trim();
-
-							}
-							data.Add(subProduct);
-							added = true;
-						}
+						//if (data.Contains())
+						data.Add(product);
+						count++;
+						continue;
 					}
-					else
+					var subProduct = ProductData.Clone(product);
+					subProduct.Option1Name = "Size";
+					subProduct.Option1Value = size.InnerText;
+					if (images.Count >= count)
 					{
-						if (count == 0)
-						{
-							data.Add(product);
-							added = true;
-							count++;
-							continue;
-						}
-						var subProduct = ProductData.Clone(product);
-						var splits = p.SelectSingleNode("a").Attributes["title"].Value.Split(new[] {" "}, StringSplitOptions.None);
-						var l = splits[1];
-						if (splits.Length > 2)
-						{
-							l = splits[1] + " " + splits[2];
-						}
-						if (!l.Contains("not"))
-						{
-							subProduct.Option1Name = "Colour";
-							subProduct.Option1Value = l;
-							data.Add(subProduct);
-							added = true;
-						}
+						subProduct.Image = images[count - 1];
 					}
-				}
-				if (!added)
-				{
-					data.Add(product);
+					count++;
+					data.Add(subProduct);
+
 				}
 			}
 			return data;
 		}
 
-		private void DeepHarvestZaraNode(HtmlNode node, ProductData product)
+		private static string CheckHandle(string handle, IDictionary<string, string> titleAndHandle, int count = 0)
+		{
+			count++;
+			var newHandle = handle;
+			if (titleAndHandle.ContainsKey(handle))
+			{
+				newHandle = CheckHandle(string.Format(handle + "-{0}", count), titleAndHandle, count);
+			}
+			return newHandle;
+		}
+
+		private IEnumerable<string> DeepHarvestZaraNode(HtmlNode node, ProductData product)
 		{
 			var productLink = node.SelectNodes("div[@class='infoProd']/a").First().Attributes["href"].Value;
 
 			var mainProductHtml = new HtmlDocument();
 			HtmlNode doc = HtmlNode.CreateNode("");
+
+			IEnumerable<string> images = new string[0];
+
 			try
 			{
 				mainProductHtml.LoadHtml(GetHtmlString(productLink));
 				// //div[@id="productright"]/div[@class=product_info]/p
 				doc = mainProductHtml.DocumentNode;
+				images = new[] { doc.SelectNodes("//img[@id='bigImage']").First().Attributes["src"].Value };
 
-				product.Handle = doc.SelectNodes("//div[@class='prodInfoDesc']/h2")
-					.First()
-					.InnerText
-					.Replace("É", "E")
-					.Replace("É".ToLower(), "e")
-					.Replace(" ", "-")
-					.Replace("\r", "")
-					.Replace("\n", "")
-					.Replace("\t", "")
-					.Replace("&amp;-", "")
-					.Replace("É", "E")
-					.Replace("É".ToLower(), "e")
-					.Trim();
+				//product.Handle = doc.SelectNodes("//div[@class='prodInfoDesc']/h2")
+				//    .First()
+				//    .InnerText
+				//    .Replace("É", "E")
+				//    .Replace("É".ToLower(), "e")
+				//    .Replace(" ", "-")
+				//    .Replace("\r", "")
+				//    .Replace("\n", "")
+				//    .Replace("\t", "")
+				//    .Replace("&amp;-", "")
+				//    .Replace("É", "E")
+				//    .Replace("É".ToLower(), "e")
+				//    .Trim();
 
 				product.Body = "\"" +
 							   doc.SelectNodes("//div[@class='prodInfoDesc']/p[@class='description']").First().InnerText.Replace(
@@ -169,14 +132,14 @@ namespace ShopNaija.ScreenScraper.Scrapers
 								.Replace("\r", "")
 								.Replace("\n", "")
 								.Replace("\t", "") + "\"";
-				product.Type = "Mens Knitwear"; //DiscernType(product.Body, product.Title);
+				product.Type = productType; //"Mens Knitwear"; //DiscernType(product.Body, product.Title);
 			}
 			catch
 			{
 				Console.WriteLine("Exception thrown trying to parse: {0}", productLink);
 			}
 
-			HtmlNodeCollection sizes = null;
+			//HtmlNodeCollection sizes = null;
 			var productForm = doc.SelectNodes("//div[@class='formProduct']").First();
 			//Debugger.Launch();
 			product.Option1Name = "Title";
@@ -185,7 +148,7 @@ namespace ShopNaija.ScreenScraper.Scrapers
 			if (colours != null)
 			{
 				product.Option1Name = "Colour";
-				var splits = colours.First().SelectSingleNode("a").Attributes["title"].Value.Split(new[] {" "},
+				var splits = colours.First().SelectSingleNode("a").Attributes["title"].Value.Split(new[] { " " },
 																								   StringSplitOptions.None);
 				var t = splits[1];
 				if (t != "not")
@@ -206,49 +169,78 @@ namespace ShopNaija.ScreenScraper.Scrapers
 				}
 			}
 
-			var notAvailable = doc.SelectNodes("//div[@class='tableOptions']/table/tr");
-			if (notAvailable.Any())
-			{
-				sizes = notAvailable.First().SelectNodes("//b[@class='sizeDetail1']");
-			}
+			//var notAvailable = doc.SelectNodes("//div[@class='tableOptions']/table/tr");
+			//if (notAvailable.Any())
+			//{
+			//    sizes = notAvailable.First().SelectNodes("//b[@class='sizeDetail1']");
+			//}
 
-			if (productForm.InnerHtml.Contains("Size"))
-			{
-				if (sizes != null)
-				{
-					if (product.Option1Name == "Title")
-					{
-						product.Option1Name = "Size";
-						product.Option1Value = sizes.First().SelectSingleNode("//b")
-							.InnerText
-							.Replace("\r", "")
-							.Replace("\r", "")
-							.Replace("&nbsp;", "")
-							.Trim();
-					}
-					else
-					{
-						product.Option2Name = "Size";
-						product.Option2Value = sizes.First().SelectSingleNode("//b")
-							.InnerText
-							.Replace("\r", "")
-							.Replace("\r", "")
-							.Replace("&nbsp;", "")
-							.Trim();
-					}
-				}
-			}
+			//if (productForm.InnerHtml.Contains("Size"))
+			//{
+			//    if (sizes != null)
+			//    {
+			//        if (product.Option1Name == "Title")
+			//        {
+			//            product.Option1Name = "Size";
+			//            product.Option1Value = sizes.First().SelectSingleNode("//b")
+			//                .InnerText
+			//                .Replace("\r", "")
+			//                .Replace("\r", "")
+			//                .Replace("&nbsp;", "")
+			//                .Trim();
+			//        }
+			//        else
+			//        {
+			//            product.Option2Name = "Size";
+			//            product.Option2Value = sizes.First().SelectSingleNode("//b")
+			//                .InnerText
+			//                .Replace("\r", "")
+			//                .Replace("\r", "")
+			//                .Replace("&nbsp;", "")
+			//                .Trim();
+			//        }
+			//    }
+			//}
 
-            product.Sku = productLink;
-            product.Taxable = "FALSE";
+			var xsmall = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 0)
+			{
+				InnerHtml = "3"
+			};
+			var small = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 1)
+			{
+				InnerHtml = "S"
+			};
+			var medium = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 2)
+			{
+				InnerHtml = "5"
+			};
+			var large = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 3)
+			{
+				InnerHtml = "6"
+			};
+			var xlarge = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 4)
+			{
+				InnerHtml = "7"
+			};
+			var xxlarge = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 5)
+			{
+				InnerHtml = "8"
+			};
+
+			var sizes = new HtmlNode[] { xsmall, small, medium, large, xlarge, xxlarge, /*xxxlarge, xxxxlarge, xl, xxl, xxxl, xl1, xxl1, xxxl1 */};
+
+			product.Sku = productLink;
+			product.Taxable = "FALSE";
 			product.RequiresShipping = "TRUE";
 			product.FulfillmentService = "manual";
 			product.InventoryPolicy = "continue";
-			product.Vendor = "Zara";
+			product.Vendor = vendor;
 			product.InventoryQuantity = "0";
-			product.Tags = "Mens Knitwear";
-			product.Sizes = sizes ?? new HtmlNodeCollection(null);
-			product.Colours = colours ?? new HtmlNodeCollection(null);
+			product.Tags = productType;
+			product.Sizes = sizes;
+			//product.Colours = colours ?? new HtmlNodeCollection(null);
+
+			return images;
 		}
 	}
 }

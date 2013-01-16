@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Security.Principal;
 using System.Web;
 
 namespace ShopNaija.ScreenScraper.Scrapers
@@ -43,13 +44,18 @@ namespace ShopNaija.ScreenScraper.Scrapers
 			string responseHtml;
 			var source = string.IsNullOrEmpty(urlToGetDataFrom) ? RootUrlToGetDataFrom : urlToGetDataFrom;
 			var request = WebRequest.Create(source);
+			request.Method = "GET";
+			((HttpWebRequest) request).UserAgent = "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.15 (KHTML, like Gecko) Chrome/24.0.1295.0 Safari/537.15";
+			((HttpWebRequest) request).Accept = "text/html";
 
 			try
 			{
+				//request.ImpersonationLevel=TokenImpersonationLevel.Impersonation;
 				using (var response = request.GetResponse())
 				{
 					using (var sr = new StreamReader(response.GetResponseStream()))
 					{
+
 						responseHtml = sr.ReadToEnd();
 					}
 				}

@@ -8,10 +8,10 @@ namespace ShopNaija.ScreenScraper.Scrapers
 {
 	public class Forever21ScraperImplementation : ScraperImplementationBase, IScraperImplementation
 	{
-        private const double profitRate = 1.225;
+        private const double profitRate = 1.205;
         private const double deliveryRate = 5;
         private const double cardRate = 1.02;
-        private const string productType = "Womens Blouses";
+        private const string productType = "Womens Dresses";
         private const string vendor = "Forever21";
         
         public Forever21ScraperImplementation(string rootUrlToGetDataFrom, string baseAddress)

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <StartArguments>"http://www.hm.com/gb/subdepartment/LADIES?Nr=4294961817#Nr=4294961817&amp;size=100" "http://www.hm.com"</StartArguments>
+    <StartArguments>"http://www.dorothyperkins.com/webapp/wcs/stores/servlet/CatalogNavigationSearchResultCmd?catalogId=33053&amp;storeId=12552&amp;langId=-1&amp;viewAllFlag=false&amp;sort_field=Relevance&amp;categoryId=228107&amp;parent_categoryId=226988&amp;beginIndex=1&amp;pageSize=134#catalogId=33053&amp;storeId=12552&amp;langId=-1&amp;viewAllFlag=false&amp;sort_field=Relevance&amp;categoryId=228107&amp;parent_categoryId=226988&amp;beginIndex=1&amp;pageSize=200&amp;refinements=Price{2}~[10|25]" "http://www.dorothyperkins.com"</StartArguments>
   </PropertyGroup>
 </Project>
