@@ -17,6 +17,7 @@ namespace ShopNaija.ScreenScraper.Scrapers
 
 		public IEnumerable<ProductData> RecurseNodes(HtmlDocument document)
 		{
+
 			var nodes = document.DocumentNode.SelectNodes("//div[@id='Product_List']/div[@class='product_box']");
 
 			var data = new List<ProductData>();
@@ -166,7 +167,8 @@ namespace ShopNaija.ScreenScraper.Scrapers
 				}
 			}
 
-			product.Taxable = "FALSE";
+            product.Sku = productLink;
+            product.Taxable = "FALSE";
 			product.RequiresShipping = "TRUE";
 			product.FulfillmentService = "manual";
 			product.InventoryPolicy = "continue";

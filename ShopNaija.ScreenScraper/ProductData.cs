@@ -37,6 +37,7 @@ namespace ShopNaija.ScreenScraper
         {
         	return new ProductData
         	{
+                Sku = product.Sku,
         	    Handle = product.Handle,
         	    Weight = product.Weight,
         	    InventoryQuantity = product.InventoryQuantity,

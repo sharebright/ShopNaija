@@ -174,6 +174,7 @@ namespace ShopNaija.ScreenScraper.Scrapers
                 }
             }
 
+            product.Sku = productLink;
             product.Taxable = "FALSE";
             product.RequiresShipping = "TRUE";
             product.FulfillmentService = "manual";

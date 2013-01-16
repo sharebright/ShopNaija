@@ -66,7 +66,8 @@ namespace ShopNaija.ScreenScraper.Scrapers
 
 		private void DeepHarvestMatalanNode(HtmlNode node, ProductData product)
 		{
-			product.Option1Name = "Title";
+            //product.Sku = productLink;
+            product.Option1Name = "Title";
 			product.Option1Value = "Title";
 			product.Taxable = "FALSE";
 			product.RequiresShipping = "TRUE";
