@@ -5,8 +5,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShopNaija.ScreenScraper", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShopNaija.ScreenScraperConsole", "..\ShopNaija.ScreenScraperConsole\ShopNaija.ScreenScraperConsole.csproj", "{5859980F-A1C3-4E34-959C-105960BF9290}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsFormsApplication1", "..\WindowsFormsApplication1\WindowsFormsApplication1.csproj", "{456AAB7E-D0EA-46D7-8981-1403E5A244BA}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShopNaijaFormScraper", "ShopNaijaFormScraper\ShopNaijaFormScraper.csproj", "{1D2302A7-CB52-411F-8A0E-B8D62B8B25D6}"
 EndProject
 Global
@@ -39,16 +37,6 @@ Global
 		{5859980F-A1C3-4E34-959C-105960BF9290}.Release|Mixed Platforms.Build.0 = Release|x86
 		{5859980F-A1C3-4E34-959C-105960BF9290}.Release|x86.ActiveCfg = Release|x86
 		{5859980F-A1C3-4E34-959C-105960BF9290}.Release|x86.Build.0 = Release|x86
-		{456AAB7E-D0EA-46D7-8981-1403E5A244BA}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{456AAB7E-D0EA-46D7-8981-1403E5A244BA}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{456AAB7E-D0EA-46D7-8981-1403E5A244BA}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{456AAB7E-D0EA-46D7-8981-1403E5A244BA}.Debug|x86.ActiveCfg = Debug|x86
-		{456AAB7E-D0EA-46D7-8981-1403E5A244BA}.Debug|x86.Build.0 = Debug|x86
-		{456AAB7E-D0EA-46D7-8981-1403E5A244BA}.Release|Any CPU.ActiveCfg = Release|x86
-		{456AAB7E-D0EA-46D7-8981-1403E5A244BA}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{456AAB7E-D0EA-46D7-8981-1403E5A244BA}.Release|Mixed Platforms.Build.0 = Release|x86
-		{456AAB7E-D0EA-46D7-8981-1403E5A244BA}.Release|x86.ActiveCfg = Release|x86
-		{456AAB7E-D0EA-46D7-8981-1403E5A244BA}.Release|x86.Build.0 = Release|x86
 		{1D2302A7-CB52-411F-8A0E-B8D62B8B25D6}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{1D2302A7-CB52-411F-8A0E-B8D62B8B25D6}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
 		{1D2302A7-CB52-411F-8A0E-B8D62B8B25D6}.Debug|Mixed Platforms.Build.0 = Debug|x86

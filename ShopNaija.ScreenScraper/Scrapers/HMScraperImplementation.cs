@@ -22,9 +22,7 @@ namespace ShopNaija.ScreenScraper.Scrapers
 
         public IEnumerable<ProductData> RecurseNodes(HtmlDocument document)
         {
-            //Debugger.Launch();
             var nodes = document.DocumentNode.SelectNodes("//div/ul[@id='list-products']/li[@class = not('getTheLook')]");
-            //var nodes = document.DocumentNode.SelectNodes("//div/ul[@id='list-products']/li").Where(x => x.Attributes["class"].Value != "getTheLook");
 
             var data = new List<ProductData>();
 
@@ -87,12 +85,13 @@ namespace ShopNaija.ScreenScraper.Scrapers
                 var handle = (productType + " " + Guid.NewGuid()).Replace(" ", "-");
                 handle = CheckHandle(handle, titleAndHandle);
                 titleAndHandle.Add(handle, title);
+ 
                 var product = new ProductData { Handle = handle, Title = title, Price = price, Image = image };
 
-                //Debugger.Launch();
                 var images = DeepHarvestHMNode(node, product).ToList();
                 if (images.First() == "skip") continue;
 
+                data.Add(product);
                 var count = 0;
                 foreach (var size in product.Sizes)
                 {
@@ -177,68 +176,7 @@ namespace ShopNaija.ScreenScraper.Scrapers
                 Console.WriteLine("Exception thrown trying to parse: {0}", productLink);
             }
 
-            /*var xsmall = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 0)
-            {
-                InnerHtml = "3"
-            };
-            var small = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 1)
-            {
-                InnerHtml = "4"
-            };
-            var medium = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 2)
-            {
-                InnerHtml = "5"
-            };
-            var large = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 3)
-            {
-                InnerHtml = "6"
-            };
-            var xlarge = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 4)
-            {
-                InnerHtml = "7"
-            };
-            var xxlarge = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 5)
-            {
-                InnerHtml = "8"
-            };
-            var xxxlarge = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 6)
-            {
-                InnerHtml = "9"
-            };
-            var xxxxlarge = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 7)
-            {
-                InnerHtml = "40M"
-            };
-            var xxxxxlarge = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 8)
-            {
-                InnerHtml = "40L"
-            };
-            var xl = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 9)
-            {
-                InnerHtml = "42S"
-            };
-            var xxl = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 10)
-            {
-                InnerHtml = "42M"
-            };
-            var xxxl = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 11)
-            {
-                InnerHtml = "42L"
-            };
-            var xl1 = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 12)
-            {
-                InnerHtml = "44S"
-            };
-            var xxl1 = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 13)
-            {
-                InnerHtml = "44M"
-            };
-            var xxxl1 = new HtmlNode(HtmlNodeType.Element, mainProductHtml, 14)
-            {
-                InnerHtml = "44L"
-            };*/
-
-            // var sizes = new HtmlNode[] { xsmall, small, medium, large, xlarge, xxlarge, xxxlarge, xxxxlarge, xl, /*xxl, xxxl, xl1, xxl1, xxxl1 */};
+            
             var sizes = new List<HtmlNode>();
             IEnumerable<HtmlNode> sizeNodes = null;
             try

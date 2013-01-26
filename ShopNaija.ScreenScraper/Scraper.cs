@@ -30,7 +30,7 @@ namespace ShopNaija.ScreenScraper
                 case "http://www.zara.com":
                     scraper = new ZaraScraperImplementation(rootUrlToGetDataFrom, baseAddress);
                     break;
-                case "http://localhost:8089":
+                case "http://www.matalan.co.uk":
                     scraper = new MatalanScraperImplementation(rootUrlToGetDataFrom, baseAddress);
                     break;
                 case "http://www.forever21.com":
