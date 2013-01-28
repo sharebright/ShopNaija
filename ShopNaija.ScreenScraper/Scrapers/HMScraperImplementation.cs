@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using HtmlAgilityPack;
+using ShopifyHandle;
 
 namespace ShopNaija.ScreenScraper.Scrapers
 {
     public class HMScraperImplementation : ScraperImplementationBase, IScraperImplementation
     {
-        private const double profitRate = 1.375;
+        private const double profitRate = 1.425;
         private const double deliveryRate = 9;
-        private const double cardRate = 1.02;
-        private const string productType = "Womens Shoes";
-        private const string vendor = "HM";
+        private const double cardRate = 1.031;
+        private const string productType = "TestProducts";
+        private const string vendor = "ShopNaija";
 
         public HMScraperImplementation(string rootUrlToGetDataFrom, string baseAddress)
         {
@@ -82,16 +83,16 @@ namespace ShopNaija.ScreenScraper.Scrapers
                 //Debugger.Launch();
                 var imgSrc = node.SelectNodes("div/div[@class='image']/img").First().Attributes["src"].Value.Replace(" ", "%20");
                 var image = "\"" + (imgSrc.StartsWith("//") ? "http:" + imgSrc : imgSrc) + "\"";
-                var handle = (productType + " " + Guid.NewGuid()).Replace(" ", "-");
-                handle = CheckHandle(handle, titleAndHandle);
-                titleAndHandle.Add(handle, title);
+                //var handle = new HandleManager().Encrypt() //(productType + " " + Guid.NewGuid()).Replace(" ", "-");
+               /* handle = CheckHandle(handle, titleAndHandle);
+                titleAndHandle.Add(handle, title);*/
  
-                var product = new ProductData { Handle = handle, Title = title, Price = price, Image = image };
+                var product = new ProductData { /*Handle = handle, */Title = title, Price = price, Image = image };
 
                 var images = DeepHarvestHMNode(node, product).ToList();
                 if (images.First() == "skip") continue;
 
-                data.Add(product);
+                //data.Add(product);
                 var count = 0;
                 foreach (var size in product.Sizes)
                 {
@@ -210,8 +211,8 @@ namespace ShopNaija.ScreenScraper.Scrapers
 
             product.Option1Name = "Size";
             product.Option1Value = sizes.First().InnerText;
-
-
+            //Console.ReadKey();
+            product.Handle = "\"" + new HandleManager().Encrypt(productLink) + "\"";
             product.Sku = productLink;
             product.Taxable = "FALSE";
             product.RequiresShipping = "TRUE";
