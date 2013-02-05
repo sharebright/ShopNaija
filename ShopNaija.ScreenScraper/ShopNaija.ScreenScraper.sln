@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShopNaijaFormScraper", "Sho
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShopifyHandle", "..\ShopifyHandle\ShopifyHandle.csproj", "{30C77848-ECD0-481B-83CD-E6332A6C2BCD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CipherTest", "CipherTest\CipherTest.csproj", "{7ED5D019-9511-4E4C-B9AA-96E4564A47AF}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HandleCipher", "HandleCipher\HandleCipher.csproj", "{2D1AA4D4-1D3A-47EE-A2E3-686665BA589A}"
 EndProject
 Global
@@ -63,16 +61,6 @@ Global
 		{30C77848-ECD0-481B-83CD-E6332A6C2BCD}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{30C77848-ECD0-481B-83CD-E6332A6C2BCD}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{30C77848-ECD0-481B-83CD-E6332A6C2BCD}.Release|x86.ActiveCfg = Release|Any CPU
-		{7ED5D019-9511-4E4C-B9AA-96E4564A47AF}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{7ED5D019-9511-4E4C-B9AA-96E4564A47AF}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{7ED5D019-9511-4E4C-B9AA-96E4564A47AF}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{7ED5D019-9511-4E4C-B9AA-96E4564A47AF}.Debug|x86.ActiveCfg = Debug|x86
-		{7ED5D019-9511-4E4C-B9AA-96E4564A47AF}.Debug|x86.Build.0 = Debug|x86
-		{7ED5D019-9511-4E4C-B9AA-96E4564A47AF}.Release|Any CPU.ActiveCfg = Release|x86
-		{7ED5D019-9511-4E4C-B9AA-96E4564A47AF}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{7ED5D019-9511-4E4C-B9AA-96E4564A47AF}.Release|Mixed Platforms.Build.0 = Release|x86
-		{7ED5D019-9511-4E4C-B9AA-96E4564A47AF}.Release|x86.ActiveCfg = Release|x86
-		{7ED5D019-9511-4E4C-B9AA-96E4564A47AF}.Release|x86.Build.0 = Release|x86
 		{2D1AA4D4-1D3A-47EE-A2E3-686665BA589A}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{2D1AA4D4-1D3A-47EE-A2E3-686665BA589A}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
 		{2D1AA4D4-1D3A-47EE-A2E3-686665BA589A}.Debug|Mixed Platforms.Build.0 = Debug|x86

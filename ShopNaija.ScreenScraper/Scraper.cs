@@ -8,11 +8,16 @@ namespace ShopNaija.ScreenScraper
         private readonly string rootUrlToGetDataFrom;
         private string result;
         private readonly string baseAddress = "http://www.henryjamesshoes.com";
-
+        public bool Overloaded { get; set; }
+        public double ProfitRate { get; set; }
+        public double DeliveryRate { get; set; }
+        public double CardRate { get; set; }
+        
         public Scraper(string rootUrlToGetDataFrom, string baseAddress = "http://www.henryjamesshoes.com")
         {
             this.rootUrlToGetDataFrom = rootUrlToGetDataFrom;
             this.baseAddress = baseAddress;
+            Overloaded = false;
         }
 
         public ScrapedData Scrape()
@@ -34,16 +39,24 @@ namespace ShopNaija.ScreenScraper
                     scraper = new MatalanScraperImplementation(rootUrlToGetDataFrom, baseAddress);
                     break;
                 case "http://www.forever21.com":
-                    scraper = new Forever21ScraperImplementation(rootUrlToGetDataFrom, baseAddress);
+                    scraper = !Overloaded
+                            ? new Forever21ScraperImplementation(rootUrlToGetDataFrom, baseAddress)
+                            : new Forever21ScraperImplementation(rootUrlToGetDataFrom, baseAddress, ProfitRate, DeliveryRate, CardRate);
                     break;
                 case "barratts":
                 case "http://www.barratts.co.uk":
-                    scraper = new BarrattsScraperImplementation(rootUrlToGetDataFrom, baseAddress);
+                    scraper = !Overloaded
+                            ? new BarrattsScraperImplementation(rootUrlToGetDataFrom, baseAddress)
+                            : new BarrattsScraperImplementation(rootUrlToGetDataFrom, baseAddress, ProfitRate, DeliveryRate, CardRate);
                     break;
                 case "hm":
                 case "http://www.hm.com":
-                    scraper = new HMScraperImplementation(rootUrlToGetDataFrom, baseAddress);
-                    break;
+                    {
+                        scraper = !Overloaded
+                            ? new HmScraperImplementation(rootUrlToGetDataFrom, baseAddress)
+                            : new HmScraperImplementation(rootUrlToGetDataFrom, baseAddress, ProfitRate, DeliveryRate, CardRate);
+                        break;
+                    }
                 case "dp":
                 case "http://www.dorothyperkins.com":
                     scraper = new DPScraperImplementation(rootUrlToGetDataFrom, baseAddress);
